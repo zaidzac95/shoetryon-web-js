@@ -47,7 +47,7 @@
     <div class="center">Loading...</div>
   </div>
 
-  <script type="text/javascript" src="lib/deepar.js"></script>
+  <script type="text/javascript" src="lib/js/deepar.js"></script>
   <script type="text/javascript">
 
     var canvasHeight = window.innerHeight;
@@ -58,60 +58,55 @@
       canvasWidth = Math.floor(window.innerHeight * 0.66);
     }
 
+    let canvas = document.getElementById('deepar-canvas');
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+
     var iosDetected = getMobileOperatingSystem() === 'iOS';
 
-    var deepAR = DeepAR({
-      canvasWidth: canvasWidth,
-      canvasHeight: canvasHeight,
-      licenseKey: 'your_license_key_goes_here',
-      canvas: document.getElementById('deepar-canvas'),
-      numberOfFaces: 1,
+    var deepAR = new DeepAR({
+      licenseKey: 'your_license_key_here',
+      canvas: canvas,
       footTrackingConfig: {
-        poseEstimationWasm: './lib/libxzimgPoseEstimation.wasm',
-        detector: iosDetected ? './lib/foot-detector-ios.bin' : './lib/foot-detector-android.bin',
-        tracker: iosDetected ? './lib/foot-tracker-ios.bin' : './lib/foot-tracker-android.bin',
-        obj: './lib/foot-model.obj',
+        poseEstimationWasmPath: 'lib/wasm/libxzimgPoseEstimation.wasm',
+        detectorPath: iosDetected ? 'lib/models/foot/foot-detector-ios.bin' : 'lib/models/foot/foot-detector-android.bin',
+        trackerPath: iosDetected ? 'lib/models/foot/foot-tracker-ios.bin' : 'lib/models/foot/foot-tracker-android.bin',
+        objPath: 'lib/models/foot/foot-model.obj',
       },
-      onInitialize: function () {
-        startExternalVideo('environment');
-        deepAR.loadFootTrackingModel(function () {
-          deepAR.switchEffect(0, 'mask', './effects/Shoe_PBR', function () {
-            var loaderWrapper = document.getElementById('loader-wrapper');
-            loaderWrapper.style.display = 'none';
-          });
-        });
+      deeparWasmPath: 'lib/wasm/deepar.wasm',
+      callbacks: {
+        onInitialize: function () {
+          startExternalVideo('environment');
+            deepAR.switchEffect(0, 'mask', './effects/Shoe_PBR', function () {
+              var loaderWrapper = document.getElementById('loader-wrapper');
+              loaderWrapper.style.display = 'none';
+            });
+          
+        }
       }
     });
 
-    deepAR.onCameraPermissionAsked = function () {
+    deepAR.callbacks.onCameraPermissionAsked = function () {
       console.log('camera permission asked');
     };
 
-    deepAR.onCameraPermissionGranted = function () {
+    deepAR.callbacks.onCameraPermissionGranted = function () {
       console.log('camera permission granted');
     };
 
-    deepAR.onCameraPermissionDenied = function () {
+    deepAR.callbacks.onCameraPermissionDenied = function () {
       console.log('camera permission denied');
     };
 
-    deepAR.onScreenshotTaken = function (photo) {
+    deepAR.callbacks.onScreenshotTaken = function (photo) {
       console.log('screenshot taken');
     };
 
-    deepAR.onImageVisibilityChanged = function (visible) {
-      console.log('image visible', visible);
-    };
-
-    deepAR.onFaceVisibilityChanged = function (visible) {
-      console.log('face visible', visible);
-    };
-
-    deepAR.onVideoStarted = function () {
+    deepAR.callbacks.onVideoStarted = function () {
       console.log('video started');
     };
 
-    deepAR.onError = function(err) {
+    deepAR.callbacks.onError = function(err) {
       console.log(err);
     }
 
