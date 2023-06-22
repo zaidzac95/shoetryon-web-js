@@ -9,8 +9,17 @@ console.log("Deepar version: " + deepar.version);
 
   // Resize the canvas according to screen size.
   const canvas = document.getElementById('deepar-canvas');
-  canvas.width = window.innerWidth > window.innerHeight ? Math.floor(window.innerHeight * 0.66) : window.innerWidth;
-  canvas.height = window.innerHeight;
+  
+  // this is to make the canvas look good on high-res screens
+  const scale = window.devicePixelRatio || 1;
+  
+  const width = window.innerWidth > window.innerHeight ? Math.floor(window.innerHeight * 0.66) : window.innerWidth
+  canvas.width = Math.floor(width * scale);
+  canvas.height = Math.floor(window.innerHeight * scale);
+
+  // constrain the actual size of the canvas
+  canvas.style.maxHeight = window.innerHeight + "px";
+  canvas.style.maxWidth = width + "px";;
   
   // Initialize DeepAR.
   const deepAR = await deepar.initialize({
